@@ -8,6 +8,8 @@ import pandas as pd
 import docx
 import boto3
 
+os.makedirs('uploads', exist_ok=True)
+
 S3_BUCKET = os.getenv('S3_BUCKET')
 S3_KEY = os.getenv('S3_KEY')
 S3_SECRET = os.getenv('S3_SECRET')
@@ -40,7 +42,10 @@ def parse_excel(file_bytes: bytes) -> str:
     return df.to_csv(index=False)
 
 def parse_csv(file_bytes: bytes) -> str:
-    df = pd.read_csv(io.BytesIO(file_bytes))
+    try:
+        df = pd.read_csv(io.BytesIO(file_bytes), encoding='utf-8')
+    except UnicodeDecodeError:
+        df = pd.read_csv(io.BytesIO(file_bytes), encoding='latin1')
     return df.to_csv(index=False)
 
 def parse_docx(file_bytes: bytes) -> str:

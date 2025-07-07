@@ -1,4 +1,5 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile
+from fastapi import File as FastAPIFile
 from fastapi.middleware.cors import CORSMiddleware
 from .file_utils import detect_file_type, parse_pdf, parse_excel, parse_csv, parse_docx, parse_image, upload_to_s3
 from .nlp_utils import summarize_text, extract_policies
@@ -67,7 +68,7 @@ def health_check():
     return {"status": "ok"}
 
 @app.post("/upload")
-async def upload_file(file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def upload_file(file: UploadFile = FastAPIFile(...), db: Session = Depends(get_db)):
     contents = await file.read()
     file_type = detect_file_type(file.filename)
     file_url = upload_to_s3(contents, file.filename)
